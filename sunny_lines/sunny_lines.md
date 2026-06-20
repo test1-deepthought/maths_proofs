@@ -133,7 +133,7 @@ We now determine which sunny lines can achieve this maximum in $U\cong T_k$. A l
 
 Checking the possible slope values $\frac{p}{q}$ with $\gcd(p,q)=1$, $p,q\ne 0$, $p\ne -q$, and at least one of $|q|,|p|,|p+q| \le 2$:
 
-| $(q,p)$ | Slope | $|q|$ | $|p|$ | $|p+q|$ | Max pts in $T_k$ (odd $k$) |
+| $(q,p)$ | Slope | $\lvert q\rvert$ | $\lvert p\rvert$ | $\lvert p+q\rvert$ | Max pts in $T_k$ (odd $k$) |
 |---------|-------|-------|-------|---------|--------------------------|
 | $(1,1)$ | $1$ | $1$ | $1$ | $2$ | $m+1$ (achieved by $y=x$) |
 | $(1,-2)$ | $-2$ | $1$ | $2$ | $1$ | $m+1$ (achieved by $y=-2x+(k+2)$) |
