@@ -144,13 +144,13 @@ Checking the possible slope values $\frac{p}{q}$ with $\gcd(p,q)=1$, $p,q\ne 0$,
 | $(2,3)$ | $\tfrac32$ | $2$ | $3$ | $5$ | at most $m$ |
 | etc. | | $\ge2$ | $\ge3$ | $\ge3$ | at most $m$ |
 
-The only slopes that achieve $m+1$ points in $T_k$ for odd $k$ are $1$, $-2$, and $-\tfrac12$. (See the verification table in `exploration.py` for computational confirmation up to $k=19$.) Moreover, for each such slope, there is **exactly one** line with that slope that attains $m+1$ points:
+The only slopes that achieve $m+1$ points in $T_k$ for odd $k$ are $1$, $-2$, and $-\tfrac12$. Moreover, for each such slope, there is **exactly one** line with that slope that attains $m+1$ points:
 
 - Slope $1$: the line $y = x$.
 - Slope $-2$: the line $y = -2x + (k+2)$.
 - Slope $-\tfrac12$: the line $y = -\frac{x}{2} + \frac{k+2}{2}$.
 
-Thus at most $3$ distinct sunny lines can achieve the required $m+1$ points of $U$. But $k = 2m+1 \ge 5$ sunny lines are required, each covering $m+1$ points. By the pigeonhole principle, at least two of the $k$ lines must share the same slope. Any two distinct lines with the same slope are parallel; they intersect $U$ in disjoint subsets whose total size is strictly less than $2(m+1)$ (since the second parallel line's intercept shift reduces its coverage of $T_k$). Hence the total coverage of $U$ falls short of $|U| = (2m+1)(m+1)$, a contradiction.
+Thus at most $3$ distinct sunny lines can achieve the required $m+1$ points of $U$. But $k = 2m+1 \ge 5$ sunny lines are required, each covering $m+1$ points. By the pigeonhole principle, at least two of the $k$ lines must share the same slope. Any two distinct lines with the same slope are parallel; they intersect $U$ in disjoint subsets. If the first (optimal) line of that slope covers $m+1$ points, a second parallel line can cover at most $m$ points (since the intercept shift reduces its coverage below the unique maximum). Hence the total coverage of these two parallel lines is at most $(m+1)+m = 2m+1 = k$, but we need $2(m+1) = k+1$ points from two lines to meet the required total. Therefore the total coverage of $U$ falls short of $|U| = (2m+1)(m+1)$, a contradiction.
 
 Therefore $k$ cannot be odd with $k\ge 5$ either. Combining both cases, $k\ge 4$ is impossible. ∎
 
