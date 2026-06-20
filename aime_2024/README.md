@@ -12,7 +12,7 @@ Each problem includes the problem statement, a detailed solution, and the final 
 | 2 | 2024-I-2 | Logarithmic system | 25 |
 | 3 | 2024-I-3 | Alice and Bob token game | 809 |
 | 4 | 2024-I-4 | Lottery probability | 116 |
-| 5 | 2024-I-5 | Consecutive integer sums | 23 |
+| 5 | 2024-I-5 | Rectangles with cyclic quadrilateral | 104 |
 | 6 | 2024-I-6 | Grid paths with 4 direction changes | 294 |
 | 7 | 2024-I-7 | Maximum real part of complex expression | 540 |
 | 8 | 2024-I-8 | Tangent circles in triangle | 197 |
@@ -38,5 +38,6 @@ Each problem includes the problem statement, a detailed solution, and the final 
 | 28 | 2024-II-13 | 13th root of unity product | 321 |
 | 29 | 2024-II-14 | Base-b eautiful integers | 211 |
 | 30 | 2024-II-15 | Rectangles in dodecagon | 315 |
+| B1 | Bonus | Consecutive integer sums (duplicate ID in dataset) | 23 |
 
 Source: [Maxwell-Jia/AIME_2024](https://huggingface.co/datasets/Maxwell-Jia/AIME_2024) (MIT License)
