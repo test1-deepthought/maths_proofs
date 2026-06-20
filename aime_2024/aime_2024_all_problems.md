@@ -9,7 +9,7 @@ All 30 problems from AIME I and AIME II 2024, sourced from the Hugging Face data
 
 Every morning Aya goes for a 9-kilometer-long walk and stops at a coffee shop afterwards. When she walks at a constant speed of $s$ kilometers per hour, the walk takes her 4 hours, including $t$ minutes spent in the coffee shop. When she walks $s+2$ kilometers per hour, the walk takes her 2 hours and 24 minutes, including $t$ minutes spent in the coffee shop. Suppose Aya walks at $s+\frac{1}{2}$ kilometers per hour. Find the number of minutes the walk takes her, including the $t$ minutes spent in the coffee shop.
 
-**Solution:** $\frac{9}{s} + t = 4$ in hours and $\frac{9}{s+2} + t = 2.4$ in hours. Subtracting the second equation from the first, we get $\frac{9}{s} - \frac{9}{s+2} = 1.6$. Multiplying by $s(s+2)$, we get $9s+18-9s=18=1.6s^{2} + 3.2s$. Multiplying by $5/2$ on both sides, we get $0 = 4s^{2} + 8s - 45$. Factoring gives $(2s-5)(2s+9) = 0$, so $s=2.5$. Substituting back, $t = 0.4$ hours. With $s + \frac{1}{2} = 3$ km/h, $\frac{9}{3} + 0.4 = 3.4$ hours = 204 minutes.
+**Solution:** $\frac{9}{s} + t = 4$ in hours and $\frac{9}{s+2} + t = 2.4$ in hours. Subtracting the second from the first: $\frac{9}{s} - \frac{9}{s+2} = 1.6$. Multiplying by $s(s+2)$: $18 = 1.6s^2 + 3.2s$. Multiplying by $\frac52$: $4s^2 + 8s - 45 = 0$. Factoring: $(2s-5)(2s+9)=0$, so $s=2.5$. Then $t=0.4$ hours. With $s+\frac12 = 3$ km/h, $\frac{9}{3} + 0.4 = 3.4$ hours = 204 minutes.
 
 **Answer:** 204
 
@@ -19,7 +19,7 @@ Every morning Aya goes for a 9-kilometer-long walk and stops at a coffee shop af
 
 There exist real numbers $x$ and $y$, both greater than 1, such that $\log_x(y^x)=\log_y(x^{4y})=10$. Find $xy$.
 
-**Solution:** Simplify to $x\log_xy=4y\log_yx=10$. So $x\log_xy=10$ and $4y\log_yx=10$. Multiplying: $4xy(\log_xy\log_yx)=100$. Since $\log_ab\cdot\log_ba=1$, we have $4xy=100$, so $xy=25$.
+**Solution:** Simplify to $x\log_xy=4y\log_yx=10$. So $x\log_xy=10$ and $4y\log_yx=10$. Multiplying: $4xy(\log_xy\log_yx)=100$. Since $\log_ab\cdot\log_ba=1$, $4xy=100$, so $xy=25$.
 
 **Answer:** 25
 
@@ -27,9 +27,9 @@ There exist real numbers $x$ and $y$, both greater than 1, such that $\log_x(y^x
 
 ## 2024-I-3: Alice and Bob Token Game
 
-Alice and Bob play the following game. A stack of $n$ tokens lies before them. The players take turns with Alice going first. On each turn, the player removes either 1 token or 4 tokens from the stack. Whoever removes the last token wins. Find the number of positive integers $n$ less than or equal to 2024 for which there exists a strategy for Bob that guarantees that Bob will win the game regardless of Alice's play.
+Alice and Bob play a game with $n$ tokens. Alice goes first. On each turn, the player removes either 1 or 4 tokens. Whoever removes the last token wins. Find the number of $n\le 2024$ for which Bob has a winning strategy.
 
-**Solution:** Bob wins if $n \equiv 0 \pmod{5}$ or $n \equiv 2 \pmod{5}$. In the first case, Bob takes the complement to 5 of Alice's move. In the second case, Bob maintains the invariant $n \equiv 2 \pmod{5}$ until 2 tokens remain, then Alice takes 1 and Bob takes the last. There are 404 numbers $\equiv 0 \pmod{5}$ (5, 10, ..., 2020) and 405 numbers $\equiv 2 \pmod{5}$ (2, 7, ..., 2022) for a total of 809.
+**Solution:** Bob wins if $n\equiv 0\pmod5$ or $n\equiv 2\pmod5$. In the first case, Bob complements Alice's move to 5. In the second, Bob maintains $n\equiv2\pmod5$ until 2 tokens remain. Count: $\lfloor2024/5\rfloor=404$ numbers $\equiv0$, and $\lfloor(2024-2)/5\rfloor+1=405$ numbers $\equiv2$, total 809.
 
 **Answer:** 809
 
@@ -37,21 +37,23 @@ Alice and Bob play the following game. A stack of $n$ tokens lies before them. T
 
 ## 2024-I-4: Lottery Probability
 
-Jen enters a lottery by picking 4 distinct numbers from $S=\{1,2,3,\cdots,9,10\}$. 4 numbers are randomly chosen from $S$. She wins a prize if at least two of her numbers were 2 of the randomly chosen numbers, and wins the grand prize if all four of her numbers were the randomly chosen numbers. The probability of her winning the grand prize given that she won a prize is $\tfrac{m}{n}$ where $m$ and $n$ are relatively prime positive integers. Find $m+n$.
+Jen picks 4 distinct numbers from $\{1,\dots,10\}$. Four numbers are randomly chosen from the same set. She wins a prize if at least two of her numbers match the chosen ones, and wins the grand prize if all four match. Given she won a prize, the probability she won the grand prize is $m/n$ in lowest terms. Find $m+n$.
 
-**Solution:** $P(\text{grand} \mid \text{prize}) = P(\text{grand}) / P(\text{prize})$. Ways to win a prize: exactly 2 matches = $\binom{4}{2}\binom{6}{2} = 90$, exactly 3 matches = $\binom{4}{3}\binom{6}{1} = 24$, exactly 4 matches = 1, total = 115. $P(\text{prize}) = 115 / \binom{10}{4}$. $P(\text{grand}) = 1 / \binom{10}{4}$. So the conditional probability is $1/115$, and $1+115=116$.
+**Solution:** Winning a prize: exactly 2 matches $=\binom42\binom62=90$, exactly 3 $=\binom43\binom61=24$, exactly 4 $=1$, total 115. $P(\text{grand}\mid\text{prize}) = \frac{1/\binom{10}{4}}{115/\binom{10}{4}} = \frac1{115}$. So $1+115=116$.
 
 **Answer:** 116
 
 ---
 
-## 2024-I-5: Consecutive Integer Sums
+## 2024-I-5: Rectangles with Cyclic Quadrilateral
 
-It is known that 2024 can be expressed as a sum of 16 consecutive positive integers. What is the largest number of consecutive positive integers whose sum is 2024?
+Rectangles $ABCD$ and $EFGH$ are drawn such that $D,E,C,F$ are collinear. Also, $A,D,H,G$ all lie on a circle. If $BC=16$, $AB=107$, $FG=17$, and $EF=184$, what is the length of $CE$?
 
-**Solution:** For $k$ consecutive integers starting at $a$, sum $= k(2a + k - 1)/2 = 2024$, so $k(2a + k - 1) = 4048 = 2^4 \cdot 11 \cdot 23$. We need $k \mid 4048$ and $(4048/k - k + 1)$ even. Valid $k$: 1, 11, 16, 23. The largest is 23, corresponding to $77 + 78 + \cdots + 99 = 2024$.
+**Solution:** Let $O$ be the center of the circle through $A,D,H,G$, and let $P$ and $Q$ be midpoints of $HG$ and $AD$ respectively. Since $OA=OH$, we have $OQ^2+QA^2=OP^2+PH^2$. With $QA=8$, $PH=92$, $OP=DQ+HE=8+17=25$, and $OQ=DE+HP=x+92$, we get $(x+92)^2+8^2=25^2+92^2$. Solving: $(x+92)^2=9025$, so $x+92=95$, i.e., $DE=3$. Hence $CE=CD-DE=107-3=\boxed{104}$.
 
-**Answer:** 23
+(Also solvable by Power of a Point: $x(x+184)=17\cdot33=561\Rightarrow x=3$; or by similar triangles $\triangle DHE\sim\triangle GAB$: $\frac{x}{17}=\frac{33}{184+x}\Rightarrow x=3$.)
+
+**Answer:** 104
 
 ---
 
@@ -302,3 +304,15 @@ Find the number of rectangles that can be formed inside a fixed regular dodecago
 **Solution:** Count by slope cases: $k = 0, \tan30^\circ, \tan60^\circ$ give $54$ rectangles each ($3 \times 54 = 162$). $k = \tan15^\circ, \tan45^\circ, \tan75^\circ$ give $51$ rectangles each ($3 \times 51 = 153$). Total = $162 + 153 = 315$.
 
 **Answer:** 315
+
+---
+
+## Bonus: Consecutive Integer Sums (Dataset ID: 2024-I-5, Duplicate Entry)
+
+*This problem appears in the Hugging Face dataset with ID "2024-I-5" (Row 4), but the correct AIME 2024 I Problem 5 is the Rectangles problem above. This problem's true AIME identity could not be externally verified; it is preserved here as found in the source dataset.*
+
+It is known that 2024 can be expressed as a sum of 16 consecutive positive integers. What is the largest number of consecutive positive integers whose sum is 2024?
+
+**Solution:** For $k$ consecutive integers starting at $a$, sum $= k(2a + k - 1)/2 = 2024$, so $k(2a + k - 1) = 4048 = 2^4 \cdot 11 \cdot 23$. We need $k \mid 4048$ and $(4048/k - k + 1)$ even. Valid $k$: 1, 11, 16, 23. The largest is 23, corresponding to $77 + 78 + \cdots + 99 = 2024$.
+
+**Answer:** 23
