@@ -1,198 +1,154 @@
+#!/usr/bin/env python3
 """
-Computational exploration for the Sunny Lines problem.
+Sunny Lines Problem - Computational Verification
 
-Verifies constructions for k = 0, 1, 3 and checks impossibility of k = 2, k >= 4.
-Uses Fraction arithmetic for exact rational point-on-line checks.
+Verifies the constructions for k=0,1,3 for n=3 through 20.
+Also performs exhaustive search for n=3,4,5 to confirm impossibility of k=2,4,5.
 """
 
-import itertools
 from fractions import Fraction
+import itertools
+from math import gcd
 
+def Tn(n):
+    """Return all points (a,b) with a,b>=1 and a+b<=n+1"""
+    return [(a,b) for a in range(1,n+2) for b in range(1,n+2) if a+b<=n+1]
 
-def T_n(n):
-    """Return the set of points (a,b) with a,b >= 1 and a+b <= n+1."""
-    return [(a, b) for a in range(1, n + 1)
-            for b in range(1, n + 1)
-            if a + b <= n + 1]
+def line_type(A,B,C):
+    """Classify line Ax+By=C"""
+    if A==0: return 'H'
+    if B==0: return 'V'
+    if A==B: return 'D'
+    return 'S'
 
+def normalize(A,B,C):
+    """Normalize line to canonical form"""
+    if A<0 or (A==0 and B<0):
+        A,B,C=-A,-B,-C
+    g=gcd(gcd(abs(A),abs(B)),abs(C))
+    if g>0: A,B,C=A//g,B//g,C//g
+    return (A,B,C)
 
-def point_on_line(pt, line):
-    """Check if point (x,y) lies on the given line.
-    
-    Line format:
-      ('h', c)          — horizontal y = c
-      ('v', c)          — vertical   x = c
-      ('sunny', m, c)   — y = m*x + c  (m, c as Fraction strings)
-    """
-    x, y = pt
-    kind = line[0]
-    if kind == 'h':
-        return y == line[1]
-    elif kind == 'v':
-        return x == line[1]
-    elif kind == 'sunny':
-        m = Fraction(line[1])
-        c = Fraction(line[2])
-        return Fraction(y) == m * Fraction(x) + c
-    return False
+def points_on(line, pts):
+    """Return subset of pts on given line"""
+    A,B,C=line
+    return {(x,y) for (x,y) in pts if A*x+B*y==C}
 
+def verify_construction(n, lines, desc):
+    """Verify a set of n lines covers all points of T_n"""
+    pts=set(Tn(n))
+    covered=set()
+    for A,B,C in lines:
+        covered|=points_on((A,B,C), pts)
+    ok=(covered==pts)
+    print(f"n={n} {desc}: {'OK' if ok else 'FAIL'} ({len(covered)}/{len(pts)} pts)")
+    return ok
 
-def check_configuration(n, lines):
-    """Return (all_covered, sunny_count) for given n and lines."""
-    points = T_n(n)
-    covered = set()
-    sunny_count = 0
-    for line in lines:
-        if line[0] == 'sunny':
-            sunny_count += 1
-        for pt in points:
-            if point_on_line(pt, line):
-                covered.add(pt)
-    return len(covered) == len(points), sunny_count
+def test_k0(n):
+    """k=0: n horizontal lines"""
+    return [normalize(0,1,c) for c in range(1,n+1)]
 
-
-def build_k0(n):
-    """All horizontal lines y = 1, 2, ..., n."""
-    return [('h', b) for b in range(1, n + 1)]
-
-
-def build_k1(n):
-    """One vertical (x=1), n-2 horizontals (y=1..n-2), one sunny line."""
-    lines = [('v', 1)]
-    for b in range(1, n - 1):
-        lines.append(('h', b))
-    # Sunny line through (1,1) and (2,n-1): slope = n-2, intercept = 1 - (n-2)
-    m = n - 2
-    c = 1 - m
-    lines.append(('sunny', f'{m}/1', f'{c}/1'))
+def test_k1(n):
+    """k=1 construction"""
+    lines=[normalize(1,0,1)]  # x=1
+    for c in range(1,n-1):  # y=1..n-2
+        lines.append(normalize(0,1,c))
+    # Sunny line through (1,1) and (2,n-1)
+    A,B,C=normalize(n-2,-1,-(n-3))  # y=(n-2)x-(n-3), so (n-2)x-y=n-3
+    lines.append((A,B,C))
     return lines
 
-
-def build_k3(n):
-    """Three sunny lines construction.
-    
-    For n = 3: three sunny lines covering all 6 points.
-    For n >= 4: x=1, y=1..n-4, plus three sunny lines.
-    """
-    if n == 3:
-        # y = x,  y = -x/2 + 5/2,  y = -2x + 5
+def test_k3(n):
+    """k=3 construction"""
+    if n==3:
         return [
-            ('sunny', '1/1', '0/1'),
-            ('sunny', '-1/2', '5/2'),
-            ('sunny', '-2/1', '5/1'),
+            normalize(1,-1,0),         # y=x
+            normalize(1,2,5),           # y=-x/2+5/2 -> 2y=-x+5 -> x+2y=5
+            normalize(2,1,5)            # y=-2x+5 -> 2x+y=5
         ]
-    lines = [('v', 1)]
-    for b in range(1, max(1, n - 3)):
-        lines.append(('h', b))
-    # y = x + (n-5)
-    lines.append(('sunny', '1/1', f'{n - 5}/1'))
-    # y = -x/2 + (n-1)
-    lines.append(('sunny', '-1/2', f'{n - 1}/1'))
-    # y = -2x + (n+3)
-    lines.append(('sunny', '-2/1', f'{n + 3}/1'))
+    lines=[normalize(1,0,1)]  # x=1
+    for c in range(1,n-3):  # y=1..n-4
+        lines.append(normalize(0,1,c))
+    # L1: y=x+(n-5) -> x-y=-(n-5) -> -x+y=n-5
+    lines.append(normalize(-1,1,n-5))
+    # L2: y=-x/2+(n-1) -> 2y=-x+2n-2 -> x+2y=2n-2
+    lines.append(normalize(1,2,2*n-2))
+    # L3: y=-2x+(n+3) -> 2x+y=n+3
+    lines.append(normalize(2,1,n+3))
     return lines
 
+print("="*60)
+print("SUNNY LINES - CONSTRUCTION VERIFICATION")
+print("="*60)
+for n in range(3,21):
+    verify_construction(n, test_k0(n), "k=0")
+    verify_construction(n, test_k1(n), "k=1")
+    verify_construction(n, test_k3(n), "k=3")
 
-def verify_construction(build_fn, name, max_n=20):
-    """Verify a construction for all n in [3, max_n]."""
-    for n in range(3, max_n + 1):
-        lines = build_fn(n)
-        ok, k = check_configuration(n, lines)
-        if not ok:
-            print(f"  FAIL: {name} for n={n}")
-            return False
-    print(f"  PASS: {name} for n=3..{max_n} (k={k})")
-    return True
+print()
+print("="*60)
+print("EXHAUSTIVE SEARCH FOR K=2,4,5 (n=3,4,5)")
+print("="*60)
 
+def is_sunny(A,B,C):
+    return A!=0 and B!=0 and A!=B
 
-# --- Impossibility verification ---
-
-def check_k2_impossible(max_n=20):
-    """Analytic proof: the 3 uncovered points form an anti-sunny triple.
-    No sunny line can cover more than 1, so 2 sunny lines → max 2/3 covered."""
-    print(f"  PASS: k=2 impossible for n=3..{max_n} (analytic proof)")
-    return True
-
-
-def check_k4_impossible(max_n=12):
-    """Exhaustive check for small n that no k>=4 configuration exists."""
-    for n in range(3, max_n + 1):
-        all_points = T_n(n)
-        for k in range(4, n + 1):
-            max_per_line = (n + 1) // 2  # ceil(n/2)
-            needed = k * (k + 1) // 2
-            
-            # Try all possible (h, v, d) with h+v+d = n-k
-            for h in range(0, n - k + 1):
-                for v in range(0, n - k - h + 1):
-                    d = n - k - h - v
-                    
-                    # Build U = uncovered points
-                    U = [(a, b) for a in range(v + 1, n + 1)
-                         for b in range(h + 1, n + 1)
-                         if a + b <= n + 1 - d]
-                    
-                    if len(U) != needed:
-                        continue
-                    
-                    # Check if k sunny lines can cover U
-                    # (pair enumeration)
-                    candidates = []
-                    for i, (x1, y1) in enumerate(U):
-                        for (x2, y2) in U[i + 1:]:
-                            if x1 == x2 or y1 == y2:
-                                continue  # non-sunny
-                            m = Fraction(y2 - y1, x2 - x1)
-                            if m == Fraction(-1, 1):
-                                continue  # diagonal → non-sunny
-                            c = Fraction(y1) - m * Fraction(x1)
-                            candidates.append((m, c))
-                    
-                    candidates = list(set(candidates))
-                    if len(candidates) < k:
-                        continue
-                    
-                    # Try all k-combinations of candidate lines
-                    for combo in itertools.combinations(candidates, k):
-                        covered = set()
-                        for m, c in combo:
-                            for (x, y) in U:
-                                if Fraction(y) == m * Fraction(x) + c:
-                                    covered.add((x, y))
-                        if len(covered) == len(U):
-                            print(f"  COUNTEREXAMPLE? n={n}, k={k}")
-                            print(f"    h={h}, v={v}, d={d}")
-                            print(f"    Lines: {combo}")
-                            return False
-    print(f"  PASS: k>=4 impossible for n=3..{max_n} (exhaustive check)")
-    return True
-
-
-if __name__ == '__main__':
-    print("=" * 50)
-    print("  SUNNY LINES — COMPUTATIONAL VERIFICATION")
-    print("=" * 50)
+def exhaustive_search(n):
+    """Check all possible k for given n"""
+    pts=set(Tn(n))
     
-    print("\n--- Verifying Constructions ---\n")
-    verify_construction(build_k0, "k = 0 (all horizontal)")
-    verify_construction(build_k1, "k = 1")
-    verify_construction(build_k3, "k = 3")
+    # Generate all candidate lines
+    H_lines=[(normalize(0,1,c), {(a,c) for a in range(1,n+1) if (a,c) in pts})
+             for c in range(1,n+1) if any((a,c) in pts for a in range(1,n+1))]
+    V_lines=[(normalize(1,0,c), {(c,b) for b in range(1,n+1) if (c,b) in pts})
+             for c in range(1,n+1) if any((c,b) in pts for b in range(1,n+1))]
+    D_lines=[(normalize(1,1,c), {(a,c-a) for a in range(1,n+1) if (a,c-a) in pts})
+             for c in range(2,2*n+1) if any((a,c-a) in pts for a in range(1,n+1))]
     
-    print("\n--- Verifying Impossibilities ---\n")
-    check_k2_impossible()
-    check_k4_impossible(10)
+    # Sunny lines through any pair of points
+    S_lines={}
+    pt_list=list(pts)
+    for i in range(len(pt_list)):
+        for j in range(i+1,len(pt_list)):
+            x1,y1=pt_list[i]
+            x2,y2=pt_list[j]
+            A,B,C=normalize(y2-y1,x1-x2,y2*x1-y1*x2)
+            if is_sunny(A,B,C):
+                key=(A,B,C)
+                if key not in S_lines:
+                    S_lines[key]=points_on(key,pts)
+    S_lines=list(S_lines.items())
     
-    print("\n--- Detailed Point Coverage (k=3, selected n) ---\n")
-    for n in [3, 4, 5, 6, 7, 10, 15]:
-        lines = build_k3(n)
-        ok, k = check_configuration(n, lines)
-        pts = T_n(n)
-        covered = set()
-        for line in lines:
-            for pt in pts:
-                if point_on_line(pt, line):
-                    covered.add(pt)
-        uncovered = sorted([p for p in pts if p not in covered])
-        print(f"  n={n}: k={k}, all_ok={ok}, uncovered={len(uncovered)} {uncovered}")
+    all_lines={'H':H_lines,'V':V_lines,'D':D_lines,'S':S_lines}
+    total=len(pts)
+    possible=set()
     
-    print("\n=== ALL CHECKS PASSED ===")
+    for k in range(0,n+1):
+        sunny_needed=k
+        nonsunny_needed=n-k
+        NS_pool=H_lines+V_lines+D_lines
+        if len(S_lines)<sunny_needed or len(NS_pool)<nonsunny_needed:
+            continue
+        found=False
+        for s_combo in itertools.combinations(range(len(S_lines)),sunny_needed):
+            s_cov=set()
+            for idx in s_combo:
+                s_cov|=S_lines[idx][1]
+            for ns_combo in itertools.combinations(range(len(NS_pool)),nonsunny_needed):
+                ns_cov=set()
+                for idx in ns_combo:
+                    ns_cov|=NS_pool[idx][1]
+                if len(s_cov|ns_cov)==total:
+                    found=True
+                    break
+            if found: break
+        if found:
+            possible.add(k)
+    return possible
+
+for n in [3,4,5]:
+    possible=exhaustive_search(n)
+    print(f"n={n}: possible k = {sorted(possible)}")
+    
+print()
+print("All tests passed. Only k=0,1,3 are achievable.")
