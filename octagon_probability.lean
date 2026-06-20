@@ -10,27 +10,29 @@
 import Mathlib
 open Finset
 
--- Label vertices 0 through 7
-def n : ℕ := 8
-
--- A coloring is a subset of vertices (the blue ones)
-def Coloring : Type := Finset ℕ
+-- All subsets of {0,...,7} (all possible colorings)
+def allSubsets : Finset (Finset ℕ) := Finset.powerset (Finset.range 8)
 
 -- Rotation by t positions (mod 8)
 def rotate (S : Finset ℕ) (t : ℕ) : Finset ℕ :=
   (S.image (λ i ↦ (i + t) % 8)).filter (λ x ↦ x < 8)
 
--- Condition: there exists a rotation t such that all blue vertices land on
--- originally red positions, i.e., B ∩ (B + t) = ∅
-def good (B : Finset ℕ) : Prop :=
-  ∃ t : ℕ, t < 8 ∧ (B ∩ rotate B t) = ∅
+-- Decidable condition: there exists a rotation t < 8 such that
+-- all blue vertices land on originally red positions,
+-- i.e., B ∩ rotate(B, t) = ∅
+def good (B : Finset ℕ) : Bool :=
+  (Finset.filter (λ (t : ℕ) ↦ (B ∩ rotate B t) = ∅) (Finset.range 8)).Nonempty
 
-/-- Theorem: exactly 115 out of 256 colorings are good. -/
-theorem count_good_colorings : Finset.card {B : Finset ℕ | B ⊆ Finset.range 8 ∧ good B} = 115 := by
+/-- Exactly 115 out of 256 colorings are good. -/
+theorem count_good : Finset.card (Finset.filter good allSubsets) = 115 := by
   native_decide
 
 /-- Probability in lowest terms is 115/256, so m + n = 371. -/
 theorem m_plus_n : (115 : ℕ) + 256 = 371 := by
+  native_decide
+
+/-- Sanity check: total number of colorings is 2^8 = 256. -/
+theorem total_colorings : Finset.card allSubsets = 256 := by
   native_decide
 
 /--
@@ -43,7 +45,7 @@ Combinatorial argument summary:
 6. For |B| = 4: C(8,4) = 70, of which 22 are good (48 bad because every distance 1..7 appears).
    A 4-subset is bad iff its set of pairwise differences covers {1,2,3,4,5,6,7}.
    There are 48 such bad subsets.
-7. |B| ≥ 5: impossible.
+7. |B| ≥ 5: impossible (|B| > 8 - |B|, so no room for blue vertices to map to red positions).
 Total: 1 + 8 + 28 + 56 + 22 = 115.
 Probability: 115/256. gcd(115,256) = 1. m + n = 371.
 -/
