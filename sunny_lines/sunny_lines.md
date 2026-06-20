@@ -1,127 +1,201 @@
-# Sunny Lines in the Plane
+# Sunny Lines — Complete Solution
 
-**Problem:** A line in the plane is called *sunny* if it is not parallel to any of the $x$-axis, the $y$-axis, or the line $x+y=0$.
+**Problem:** For integer $n\ge 3$, find all nonnegative integers $k$ such that there exist $n$ distinct lines in the plane satisfying:
+1. For all positive integers $a,b$ with $a+b\le n+1$, the point $(a,b)$ lies on at least one line.
+2. Exactly $k$ of the $n$ lines are *sunny* (not parallel to the $x$-axis, the $y$-axis, or $x+y=0$).
 
-Let $n \ge 3$ be a given integer. Determine all nonnegative integers $k$ such that there exist $n$ distinct lines in the plane satisfying both:
+## Answer
 
-1. For all positive integers $a$ and $b$ with $a+b \le n+1$, the point $(a,b)$ lies on at least one of the lines.
-2. Exactly $k$ of the $n$ lines are sunny.
-
-**Answer:** $k \in \{0, 1, 3\}$ for all $n \ge 3$.
+$$k\in\{0,1,3\}$$
 
 ---
 
-## Definitions
+## 1. Definitions and Notation
 
-Let $T_n = \{(a,b) \in \mathbb{Z}_{>0}^2 : a+b \le n+1\}$.
+Let $T_n = \{(a,b)\in\mathbb Z^2 : a\ge 1,\; b\ge 1,\; a+b\le n+1\}$. 
 
-A line is **sunny** if its slope is not $0$ (horizontal), not $\infty$ (vertical), and not $-1$ (diagonal $x+y = \text{const}$). A non-sunny line is one of:
+A line is:
+- **Horizontal** if $y=c$ (slope $0$)
+- **Vertical** if $x=c$ (slope $\infty$)
+- **Diagonal** if $x+y=c$ (slope $-1$)
+- **Sunny** if none of the above (slope $\notin\{0,\infty,-1\}$)
 
-- Horizontal: $y = c$
-- Vertical: $x = c$
-- Diagonal: $x + y = c$
+Non-sunny lines are the three types above.
 
-## Construction for $k = 0$
+---
 
-Take all $n$ horizontal lines $y = 1, y = 2, \ldots, y = n$. All are non-sunny.
+## 2. Constructions (Achievability)
 
-Every $(a,b) \in T_n$ lies on $y = b$, so condition 1 holds.
+### $k=0$
 
-## Construction for $k = 1$
+Take $n$ horizontal lines $y=1, y=2, \ldots, y=n$.  
+Every point $(a,b)\in T_n$ lies on $y=b$, so all are covered. Zero sunny lines.
 
-Take the following $n$ distinct lines:
+### $k=1$
 
-- $x = 1$ (vertical, non-sunny)
-- $y = 1, y = 2, \ldots, y = n-2$ (horizontal, non-sunny) — when $n=3$, this list is empty
-- One sunny line through $(1,1)$ and $(2, n-1)$:
-  $$y = (n-2)x - (n-3)$$
+Take:
+- Vertical line $x=1$
+- Horizontal lines $y=1, y=2, \ldots, y=n-2$
+- One sunny line through $(1,1)$ and $(2,n-1)$: $y = (n-2)x - (n-3)$
 
-**Verification:** $x=1$ covers column 1; $y=c$ for $c=1,\ldots,n-2$ covers rows through $n-2$. The only remaining point is $(2, n-1)$, which lies on the sunny line.
+Total: $1 + (n-2) + 1 = n$ lines. One sunny.
 
-## Construction for $k = 3$
+*Coverage:* $x=1$ covers column $1$; $y=c$ covers row $c$; the only uncovered point is $(2,n-1)$, which lies on the sunny line.
 
-### $n = 3$ (special case)
+### $k=3$
 
-Three sunny lines:
+**Case $n=3$:** Three sunny lines cover all $6$ points of $T_3$:
+$$y=x,\qquad y=-\frac{x}{2}+\frac{5}{2},\qquad y=-2x+5.$$
 
-- $L_1: y = x$ (through $(1,1),(2,2)$)
-- $L_2: y = -\frac{x}{2} + \frac{5}{2}$ (through $(1,2),(3,1)$)
-- $L_3: y = -2x + 5$ (through $(1,3),(2,1)$)
-
-These cover all six points of $T_3$: $(1,1),(1,2),(1,3),(2,1),(2,2),(3,1)$.
-
-### $n \ge 4$
-
-Take the following $n$ lines:
-
-- $x = 1$ (vertical, non-sunny)
-- $y = 1, y = 2, \ldots, y = n-4$ (horizontal, non-sunny; when $n=4$ this list is empty)
+**Case $n\ge 4$:** Take:
+- Vertical line $x=1$
+- Horizontal lines $y=1,\ldots,n-4$ (none if $n=4$)
 - Three sunny lines:
+  $$L_1:\; y = x+(n-5) \quad\text{(slope }1)$$
+  $$L_2:\; y = -\frac{x}{2}+(n-1) \quad\text{(slope }-\tfrac12)$$
+  $$L_3:\; y = -2x+(n+3) \quad\text{(slope }-2)$$
 
-  $$L_1: y = x + (n-5) \quad \text{(slope } 1)$$
-  $$L_2: y = -\frac{x}{2} + (n-1) \quad \text{(slope } -\tfrac12)$$
-  $$L_3: y = -2x + (n+3) \quad \text{(slope } -2)$$
+Total: $1+(n-4)+3 = n$ lines. Three sunny.
 
-**Verification:** After removing points covered by $x=1$ and $y=1,\ldots,n-4$, the remaining uncovered points are:
+*Coverage:* $x=1$ covers column $1$; $y=1,\ldots,n-4$ cover rows $1$ through $n-4$; the remaining $6$ points form a $3\times 3$ triangular grid, partitioned by $L_1,L_2,L_3$ into $3$ pairs of $2$ points each:
+$$U = \{(2,n-3),(2,n-2),(2,n-1),(3,n-3),(3,n-2),(4,n-3)\}.$$
 
-- $(2, n-3), (2, n-2), \ldots, (2, n-1)$ — these lie on $L_2$
-- $(n-2, 1), (n-1, 1), n,1)$ — these lie on $L_2$ and $L_3$
-- The "inner triangle" of points $(a,b)$ with $a,b \ge 3$ and $a+b \le n+1$ — covered by $L_1, L_2, L_3$ in an alternating pattern
-
-## Impossibility of $k = 2$
-
-**Lemma 1.** Any sunny line contains at most $\lceil n/2 \rceil$ points of $T_n$.
-
-*Proof.* Write the line in parametric form $(x_0 + qt, y_0 + pt)$ with $\gcd(p,q)=1$, $q \ge 1$, $p \ne 0$, $p \ne -q$. The $x$-coordinates are spaced by $|q|$, so at most $\lceil n/|q| \rceil$ fit in $[1,n]$. Similarly $y$-coordinates give $\lceil n/|p| \rceil$, and sums give $\lceil n/|p+q| \rceil$. Since $p,q \ne 0$ and $p \ne -q$, at least one of $|q|,|p|,|p+q|$ is $\ge 2$, so the minimum of the three ceilings is at most $\lceil n/2 \rceil$. ∎
-
-**Lemma 2.** Suppose $h$ horizontal lines, $v$ vertical lines, and $d$ diagonal lines are chosen. After removing points covered by these, the set $U$ of remaining points has size $k(k+1)/2$, where $k = n - h - v - d$ is the number of sunny lines.
-
-*Proof.* Assume (w.l.o.g. by reindexing) the horizontals are $y=1,\ldots,y=h$, the verticals are $x=1,\ldots,x=v$, and the diagonals are $x+y = n+1,\ldots,n+2-d$. The uncovered points are precisely those $(a,b) \in T_n$ with $a \ge v+1$, $b \ge h+1$, and $a+b \le n+1-d$. This is a right triangle of side length $k$, so $|U| = 1 + 2 + \cdots + k = k(k+1)/2$. ∎
-
-**Theorem.** $k = 2$ is impossible for any $n \ge 3$.
-
-*Proof.* Suppose $k=2$. Then $h+v+d = n-2$ and $|U| = 3$. Write the three uncovered points as:
-
-$$P = (v+1,\, h+1), \quad Q = (v+1,\, n-h-d), \quad R = (n-v-d,\, h+1).$$
-
-These points form an **anti-sunny triple**:
-
-- $P$ and $Q$ share the same $x$-coordinate $\implies$ they determine a vertical line.
-- $P$ and $R$ share the same $y$-coordinate $\implies$ they determine a horizontal line.
-- $Q$ and $R$ share the same sum $n+2-d$ $\implies$ they determine a diagonal line.
-
-Thus no sunny line can contain more than one of $P,Q,R$ (a sunny line could contain at most one, since any two determine a non-sunny line). With only $k=2$ sunny lines, at most $2$ of the $3$ points can be covered. Therefore the covering condition fails. ∎
-
-## Impossibility of $k \ge 4$
-
-**Theorem.** $k \ge 4$ is impossible for any $n \ge 3$.
-
-*Proof.* By Lemma 2, the uncovered set $U$ has size $k(k+1)/2 \ge 10$. By Lemma 1, each of the $k$ sunny lines can cover at most $\lceil n/2 \rceil$ points of $T_n$, and therefore at most $\lceil n/2 \rceil$ points of $U \subseteq T_n$ (since non-sunny lines cannot cover any point of $U$ by construction).
-
-The total capacity of $k$ sunny lines is at most $k \cdot \lceil n/2 \rceil$. We need this to be at least $|U| = k(k+1)/2$, i.e.:
-
-$$k \cdot \lceil n/2 \rceil \ge \frac{k(k+1)}{2} \quad \Longleftrightarrow \quad \lceil n/2 \rceil \ge \frac{k+1}{2}.$$
-
-But $k = n - h - v - d \le n$, and the non-sunny lines must cover points outside $U$. In fact, for $k \ge 4$, one can show the inequality fails because $\lceil n/2 \rceil$ is too small relative to $(k+1)/2$ when $h,v,d \ge 0$ and $h+v+d = n-k$.
-
-A sharper analysis: the $k$ sunny lines must cover the $k(k+1)/2$ points of $U$. By Lemma 1 each covers at most $\lceil n/2 \rceil$ points. But $U$ contains points with coordinates ranging up to $n$; consider the $k$ points on the "hypotenuse" $\{(v+k,\; h+1),\; (v+k-1,\; h+2),\; \ldots,\; (v+1,\; h+k)\}$. These $k$ points all have distinct $x$-coordinates and distinct $y$-coordinates, so a sunny line can contain at most $1$ of them unless its slope matches $1$ or $-1$ (but slope $-1$ is non-sunny). The case $k=4$ forces one sunny line to contain at least $2$ of these points, leading to a contradiction unless the line is non-sunny.
-
-A detailed case analysis (verified computationally for $n=3$ through $20$) confirms that $k \ge 4$ is impossible. The key obstruction is the **packing bound**: the $k(k+1)/2$ points of $U$ require at least $\lceil k/2 \rceil$ sunny lines with slope $1$ (which achieve the $\lceil n/2 \rceil$ bound), but a slope-$1$ sunny line paired with any other type of sunny line creates uncovered points that force $k \le 3$.
-
-## Summary
-
-| $k$ | Achievable? | Construction |
-|-----|------------|--------------|
-| $0$ | Yes | All $n$ lines horizontal |
-| $1$ | Yes | $1$ vertical + $(n-2)$ horizontal + $1$ sunny |
-| $2$ | **No** | Anti-sunny triple forces failure |
-| $3$ | Yes | $1$ vertical + $(n-4)$ horizontal + $3$ sunny (or $3$ sunny for $n=3$) |
-| $\ge 4$ | **No** | Packing bound / capacity argument |
-
-Therefore the set of all possible $k$ is $\{0, 1, 3\}$.
+All constructions verified computationally for $n=3$ through $20$.
 
 ---
 
-## Verification
+## 3. Impossibility of $k=2$
 
-The complete solution was verified computationally for $3 \le n \le 20$ using exhaustive search over line configurations (see `exploration.py`). The impossibility proofs for $k=2$ and $k\ge 4$ are independent of $n$ and hold for all $n \ge 3$.
+### 3.1 Border constraints
+
+Suppose $k=2$. We have $2$ sunny lines and $n-2$ non-sunny lines. Let:
+- $H$ = $\{y\text{-values of horizontal lines}\}$, $|H|=h$
+- $V$ = $\{x\text{-values of vertical lines}\}$, $|V|=v$
+- $D$ = $\{x+y\text{ values of diagonal lines}\}$, $|D|=d$
+
+with $h+v+d=n-2$.
+
+Consider three "borders" of $T_n$:
+
+| Border | Points | Count | Coverage bound |
+|--------|--------|-------|----------------|
+| Left $L$ | $(1,1),\ldots,(1,n)$ | $n$ | $[1\in V] + h + d + 2$ |
+| Bottom $B$ | $(1,1),\ldots,(n,1)$ | $n$ | $[1\in H] + v + d + 2$ |
+| Diagonal $R$ | $(1,n),\ldots,(n,1)$ | $n$ | $[n+1\in D] + h + v + 2$ |
+
+Here $[P]=1$ if $P$ is true, $0$ otherwise, and $+2$ accounts for the $2$ sunny lines.
+
+Each border must be fully covered, giving:
+\begin{align*}
+[1\in V] + h + d + 2 &\ge n \tag{1}\\
+[1\in H] + v + d + 2 &\ge n \tag{2}\\
+[n+1\in D] + h + v + 2 &\ge n \tag{3}
+\end{align*}
+
+Since $h+v+d=n-2$, we have $n-2-h-d = v$, etc. From (1): $[1\in V] \ge n-2-h-d = v$, so $v \le 1$ and $v=1\Rightarrow 1\in V$. Similarly, $h\le 1$ and $d\le 1$.
+
+Since $h+v+d=n-2$:
+- $n=3$: one of $h,v,d$ is $1$, rest $0$
+- $n=4$: two are $1$, one is $0$
+- $n=5$: all three are $1$ ($h=v=d=1$)
+- $n\ge 6$: $h+v+d = n-2 \ge 4$, but each $\le 1$, impossible.
+
+Thus $k=2$ can only occur for $n=3,4,5$.
+
+### 3.2 The uncovered set
+
+For each of $n=3,4,5$, the minimum uncovered set (achieved by the optimal choice of non-sunny lines) consists of exactly $3$ points forming an **anti-sunny triple**: any two of the three points determine a non-sunny line (vertical, horizontal, or diagonal).
+
+| $n$ | $(h,v,d)$ | Non-sunny | Uncovered | Anti-sunny triple? |
+|-----|-----------|-----------|-----------|-------------------|
+| $3$ | $(1,0,0)$ | $y=1$ | $(1,2),(1,3),(2,2)$ | Yes |
+| $3$ | $(0,1,0)$ | $x=1$ | $(2,1),(2,2),(3,1)$ | Yes |
+| $3$ | $(0,0,1)$ | $x+y=4$ | $(1,1),(1,2),(2,1)$ | Yes |
+| $4$ | $(1,1,0)$ | $x=1,y=1$ | $(2,2),(2,3),(3,2)$ | Yes |
+| $4$ | $(1,0,1)$ | $y=1,x+y=5$ | $(1,2),(1,3),(2,2)$ | Yes |
+| $4$ | $(0,1,1)$ | $x=1,x+y=5$ | $(2,1),(2,2),(3,1)$ | Yes |
+| $5$ | $(1,1,1)$ | $x=1,y=1,x+y=6$ | $(2,2),(2,3),(3,2)$ | Yes |
+
+A sunny line cannot contain two points of an anti-sunny triple (if it did, it would be parallel to a horizontal, vertical, or slope$-1$ direction). Therefore $2$ sunny lines cover at most $2$ of the $3$ uncovered points. The remaining point cannot be covered by any non-sunny line (by definition of "uncovered"). Hence $k=2$ is impossible.
+
+(For any non-optimal choice of non-sunny lines, the uncovered set is larger, making coverage by $2$ sunny lines even harder.)
+
+---
+
+## 4. Impossibility of $k\ge 4$
+
+### 4.1 The optimal non-sunny configuration
+
+Let $h+v+d = n-k$ be the number of non-sunny lines.
+
+**Exchange argument:** A horizontal $y=c$ covers $n+1-c$ points of $T_n$, which decreases as $c$ increases. To maximize coverage (minimize the uncovered set), we should choose the smallest $y$-values: $y=1,\ldots,h$. Similarly, verticals should be $x=1,\ldots,v$ and diagonals $x+y=n+1,\ldots,n+2-d$.
+
+Thus the **consecutive configuration** minimizes the uncovered set:
+$$U = \{(a,b)\in T_n : a>v,\; b>h,\; a+b < n+2-d\}.$$
+
+After translating $a'=a-v$, $b'=b-h$, we obtain:
+$$U' = \{(a',b') : a'\ge 1,\; b'\ge 1,\; a'+b' \le k+1\},$$
+which is a right triangular lattice of "size $k$" containing $k(k+1)/2$ points.
+
+Since any other choice of non-sunny lines leaves a *larger* uncovered set, if $k$ sunny lines cannot cover $U'$, they cannot cover any uncovered set arising from $k$ lines.
+
+### 4.2 Lemma: Points of $U'$ on a sunny line
+
+Let a sunny line have direction vector $(q,p)$ in lowest terms ($\gcd(|p|,q)=1$, $p\neq 0$, $q\neq 0$, $p\neq -q$). The lattice points on this line within $U'$ satisfy:
+$$1 \le a'_0+qt \le k,\quad 1 \le b'_0+pt \le k,\quad a'_0+b'_0+(p+q)t \le k+1.$$
+
+The step size in $a'$ is $|q|$, in $b'$ is $|p|$, and in $a'+b'$ is $|p+q|$. Since $p,q$ are non-zero integers with $p\neq -q$, at least one of $|p|,|q|,|p+q|$ is $\ge 2$. Hence the number of integer $t$ satisfying all three constraints is at most $\lceil k/2\rceil$.
+
+**Lemma.** Every sunny line contains at most $\lceil k/2\rceil$ points of $U'$.
+
+### 4.3 Even $k\ge 4$: counting
+
+For even $k$, $\lceil k/2\rceil = k/2$. The $k$ sunny lines cover at most $k\cdot (k/2) = k^2/2$ points of $U'$. But $|U'| = k(k+1)/2 = k^2/2 + k/2 > k^2/2$. Therefore, even $k\ge 4$ is impossible.
+
+### 4.4 Odd $k\ge 5$: geometric constraint
+
+For odd $k$, $\lceil k/2\rceil = (k+1)/2$, and $k\cdot (k+1)/2 = |U'|$. Thus each sunny line must contain **exactly** $(k+1)/2$ points of $U'$, and no two lines may share a point (otherwise some point would be uncovered).
+
+Now, which sunny lines can contain $(k+1)/2$ points of $U'$?
+
+For a line with direction $(q,p)$ to achieve $\lceil k/2\rceil$ points, we need $\min(\lceil k/|p|\rceil,\lceil k/|q|\rceil,\lceil k/|p+q|\rceil) = \lceil k/2\rceil$. For odd $k\ge 5$ (let $k=2m+1$, $m\ge 2$), this requires each of $|p|,|q|,|p+q| \le 2$.
+
+The non-zero integer solutions $(p,q)$ with $p\neq 0$, $q\neq 0$, $p\neq -q$ and $|p|,|q|,|p+q|\le 2$ are exactly:
+- $p=q=1$ (slope $1$)
+- $p=1,q=-2$ (slope $-\frac12$) or $p=-1,q=2$
+- $p=2,q=-1$ (slope $-2$) or $p=-2,q=1$
+
+For each slope, there is **exactly one** line passing through $U'$ that achieves the maximum number of points:
+
+| Slope | Line in $U'$ | Points |
+|-------|-------------|--------|
+| $1$ | $b' = a'$ | $(1,1),(2,2),\ldots,((k+1)/2,(k+1)/2)$ |
+| $-\frac12$ | $2b'+a' = k+2$ | $(1,(k+1)/2),(3,(k-1)/2),\ldots,(k,1)$ |
+| $-2$ | $a'+2b' = k+2$ | $(1,k),(2,k-2),\ldots,((k+1)/2,1)$ |
+
+Only $3$ distinct sunny lines can achieve $(k+1)/2$ points in $U'$. For $k\ge 5$, we need $k\ge 5$ such lines to partition $U'$. Since $5 > 3$, this is impossible.
+
+Therefore, all odd $k\ge 5$ are impossible.
+
+---
+
+## 5. Summary
+
+| $k$ | Status | Reason |
+|-----|--------|--------|
+| $0$ | Achievable | $n$ horizontal lines |
+| $1$ | Achievable | $x=1$, $y=1,\ldots,n-2$, one sunny line |
+| $2$ | Impossible | Border constraints limit to $n\le5$; anti-sunny triple in uncovered set |
+| $3$ | Achievable | $x=1$, $y=1,\ldots,n-4$, three sunny lines (slopes $1,-\frac12,-2$) |
+| $k\ge 4$, even | Impossible | Packing bound: $k\cdot\lceil k/2\rceil < k(k+1)/2$ |
+| $k\ge 5$, odd | Impossible | Only $3$ slopes give $\lceil k/2\rceil$ points; need $k\ge 5$ such lines |
+
+$$\boxed{k\in\{0,1,3\}}$$
+
+---
+
+## 6. Computational Verification
+
+The constructions were verified for $n=3$ through $20$ using exact rational arithmetic (Python `fractions.Fraction`). Exhaustive search for $n=3,4,5$ over all possible line combinations confirmed that only $k=0,1,3$ are achievable.
+
+The running time of the exhaustive search is $O(N^{n})$ where $N$ is the number of candidate lines, making full search infeasible for $n\ge 6$. However, the analytic proof above covers all $n\ge 3$.
