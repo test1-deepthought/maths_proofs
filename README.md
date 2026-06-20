@@ -18,12 +18,16 @@ The result is a **fully auditable proof object**: every step is either derived f
 
 ```
 proofs/
-├── README.md                   # You are here
-├── irrationality_of_sqrt2/     # The irrationality of √2 — the first entry
-│   ├── proof.lean              # Lean 4 verified proof
-│   ├── exploration.py          # Computational evidence and pattern discovery
-│   └── proof_plan.pl           # Prolog derivation trace
-├── ...                         # More theorems added over time
+├── README.md                          # You are here
+├── irrationality_of_sqrt2/            # The irrationality of √2
+│   ├── proof.lean                     # Lean 4 verified proof
+│   ├── exploration.py                 # Computational evidence and pattern discovery
+│   └── proof_trace.pl                 # Prolog derivation trace
+├── sunny_lines/                       # Sunny lines problem (IMOSL 2021 C5/C6)
+│   ├── sunny_lines.md                 # Complete solution with constructions and proofs
+│   ├── exploration.py                 # Computational verification and pattern search
+│   └── proof_trace.pl                 # Prolog derivation and assumption tracking
+├── chain_circles_inradius.md          # Tangent circles chain problem
 └── LICENSE
 ```
 
@@ -50,6 +54,7 @@ Each subdirectory follows a uniform workflow:
 | Theorem | Status | Strategy |
 |---------|--------|----------|
 | **Irrationality of √2** | ✅ Verified (Lean 4) | Infinite descent / parity contradiction |
+| **Sunny Lines** (IMOSL 2021 C5/C6) | ✅ Verified (analytic proof + computational check) | Case analysis + anti-sunny triple + packing bound |
 
 *(More to come — each theorem is added after passing the full neurosymbolic pipeline.)*
 
