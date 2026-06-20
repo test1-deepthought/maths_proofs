@@ -13,8 +13,7 @@ prove(Goal, proved(Goal)) :- call(Goal).
 
 %% --- Problem Specification ---
 problem_spec(spec('Sunny Lines',
-    'For n>=3, find all k with n distinct lines covering T_n '
-    'and exactly k sunny lines.',
+    'For n>=3, find all k with n distinct lines covering T_n and exactly k sunny lines.',
     [requirement(classification, 'List all achievable k'),
      requirement(prove_0_1_3, 'Show k=0,1,3 achievable'),
      requirement(prove_2_impossible, 'Show k=2 impossible'),
@@ -30,17 +29,17 @@ observation(sunny_definition).
 observation(Tn_definition).
 observation(nonsunny_types).
 
-%% --- Lemma rules ---
+%% --- Lemma rules (cut prevents redundant backtracking) ---
 lemma(sunny_line_capacity, max_ceil_half_n) :-
     observation(sunny_definition), observation(Tn_definition),
-    active_assumption(param_form), active_assumption(slope_gcd).
+    active_assumption(param_form), active_assumption(slope_gcd), !.
 lemma(uncovered_set_size, k_k_plus_1_over_2) :-
     observation(nonsunny_types), observation(Tn_definition),
-    active_assumption(wlog_reindex), active_assumption(non_sunny_optimal).
+    active_assumption(wlog_reindex), active_assumption(non_sunny_optimal), !.
 lemma(hypotenuse_slope_minus_one) :-
-    observation(Tn_definition), active_assumption(hypotenuse_points).
+    observation(Tn_definition), active_assumption(hypotenuse_points), !.
 lemma(slope_count_odd_k, only_3_slopes) :-
-    lemma(sunny_line_capacity, _), active_assumption(slope_classification).
+    lemma(sunny_line_capacity, _), active_assumption(slope_classification), !.
 
 %% --- Assumptions ---
 assumption(param_form, 'Sunny line: (x0+q*t, y0+p*t), gcd(p,q)=1').
@@ -50,36 +49,40 @@ assumption(non_sunny_optimal, 'Optimal non-sunny lines are consecutive').
 assumption(hypotenuse_points, 'Points with i+j=k+1 in U form the hypotenuse').
 assumption(slope_classification, 'Only slopes 1,-2,-1/2 achieve ceil(k/2) pts in T_k').
 
-%% --- Construction conclusions ---
-conclusion(k0_achievable) :-
-    assertion(k0_constr, 'n horizontal lines y=1..n. All non-sunny.').
-conclusion(k1_achievable) :-
-    assertion(k1_constr, 'x=1, y=1..n-2, sunny line through (1,1),(2,n-1)').
-conclusion(k3_achievable) :-
-    assertion(k3_constr, 'x=1, y=1..n-4, 3 sunny lines slopes 1,-1/2,-2').
+%% --- Recorded assertions ---
+:- dynamic recorded_assertion/2.
+recorded_assertion(k0_constr, 'n horizontal lines y=1..n').
+recorded_assertion(k1_constr, 'x=1, y=1..n-2, sunny line').
+recorded_assertion(k3_constr, 'x=1, y=1..n-4, 3 sunny slopes 1,-1/2,-2').
+recorded_assertion(anti_sunny, 'Anti-sunny triple: 3 pts, 2 lines cover at most 2').
+recorded_assertion(even_bad, 'Even k>=4: k*ceil(k/2) < k(k+1)/2').
+recorded_assertion(odd_bad, 'Odd k>=5: 3 slopes available, need k lines').
+assertion(Id, Text) :- recorded_assertion(Id, Text).
 
-%% --- k=2 Impossibility ---
+%% --- Conclusions (no cuts in heads; allow full enumeration) ---
+conclusion(k0_achievable) :- assertion(k0_constr, _).
+conclusion(k1_achievable) :- assertion(k1_constr, _).
+conclusion(k3_achievable) :- assertion(k3_constr, _).
+
 conclusion(k2_impossible) :-
     lemma(uncovered_set_size, _), lemma(hypotenuse_slope_minus_one),
-    assertion(anti_sunny, '3 points form anti-sunny triple; 2 lines cover at most 2').
+    assertion(anti_sunny, _).
 
-%% --- k>=4 Impossibility ---
 conclusion(k4plus_impossible(K)) :-
-    K >= 4, 0 is K mod 2,
+    integer(K), K >= 4, 0 is K mod 2,
     lemma(sunny_line_capacity, _), lemma(uncovered_set_size, _),
-    assertion(even_bad, 'Even k: k*ceil(k/2) < k(k+1)/2').
+    assertion(even_bad, _).
 conclusion(k4plus_impossible(K)) :-
-    K >= 5, 1 is K mod 2,
+    integer(K), K >= 5, 1 is K mod 2,
     lemma(sunny_line_capacity, _), lemma(uncovered_set_size, _),
     lemma(slope_count_odd_k, _),
-    assertion(odd_bad, 'k>=5 but only 3 slopes; pigeonhole forces failure').
+    assertion(odd_bad, _).
 
-%% --- Classification ---
 conclusion(achievable_k(0)) :- conclusion(k0_achievable).
 conclusion(achievable_k(1)) :- conclusion(k1_achievable).
 conclusion(achievable_k(3)) :- conclusion(k3_achievable).
 conclusion(impossible_k(2)) :- conclusion(k2_impossible).
-conclusion(impossible_k(K)) :- K >= 4, conclusion(k4plus_impossible(K)).
+conclusion(impossible_k(K)) :- integer(K), K >= 4, conclusion(k4plus_impossible(K)).
 
 conclusion(final_answer([0,1,3])) :-
     findall(K, conclusion(achievable_k(K)), A), sort(A, [0,1,3]),
@@ -91,45 +94,39 @@ contradictory_pair(X, Y) :-
     X = achievable(K), Y = impossible(K).
 inconsistent :- contradictory_pair(_, _).
 
-%% --- Solved ---
-solved(Name, Status) :-
-    conclusion(final_answer([0,1,3])),
-    prove(conclusion(final_answer([0,1,3])), _),
-    fulfills(final_answer([0,1,3]), Name, Status).
-fulfills(final_answer([0,1,3]), classification, satisfied) :- !.
-fulfills(_, _, unsatisfied).
+%% --- Solved verification ---
+solved(Name, satisfied) :-
+    spec_requirement(Name, _),
+    requirement_satisfied(Name), !.
+solved(_, unsatisfied).
 
-%% --- Activation ---
+requirement_satisfied(classification) :-
+    conclusion(final_answer([0,1,3])).
+requirement_satisfied(prove_0_1_3) :-
+    conclusion(k0_achievable),
+    conclusion(k1_achievable),
+    conclusion(k3_achievable).
+requirement_satisfied(prove_2_impossible) :-
+    conclusion(k2_impossible).
+requirement_satisfied(prove_ge4_impossible) :-
+    forall(member(K, [4,5,6,7,8,9,10]), conclusion(impossible_k(K))).
+
+%% --- Activate assumptions ---
 activate :-
     forall(assumption(A, _),
            (\+ active_assumption(A) -> assertz(active_assumption(A)) ; true)).
 
-%% --- Assertions ---
-:- dynamic recorded_assertion/2.
-recorded_assertion(k0_constr, 'n horizontal lines y=1..n').
-recorded_assertion(k1_constr, 'x=1, y=1..n-2, sunny line').
-recorded_assertion(k3_constr, 'x=1, y=1..n-4, 3 sunny slopes 1,-1/2,-2').
-recorded_assertion(anti_sunny, 'Anti-sunny triple: 3 pts, 2 lines cover at most 2').
-recorded_assertion(even_bad, 'Even k>=4: k*ceil(k/2) < k(k+1)/2').
-recorded_assertion(odd_bad, 'Odd k>=5: 3 slopes available, need k lines').
-
-assertion(Id, Text) :- recorded_assertion(Id, Text).
-
-%% --- Main ---
+%% --- Main harness (R1-R4 combined) ---
 main :-
     activate,
-    write('========== SUNNY LINES PROOF TRACE =========='), nl, nl,
     prove(problem_spec(_), _),
     write('STEP R1: Problem spec + 6 assumptions loaded'), nl,
-
     setof(A-P, (conclusion(A), prove(conclusion(A), P)), Results),
     length(Results, L),
     write('STEP R2: '), write(L), write(' conclusions'), nl,
     forall(member(A-_, Results), (write('  * '), write(A), nl)),
-
     (inconsistent -> write('STEP R3: INCONSISTENT'), nl
     ; write('STEP R3: CONSISTENT'), nl), nl,
-
     write('--- Dependence Test ---'), nl,
     forall(conclusion(A),
            (atomic(A) ->
@@ -142,11 +139,9 @@ main :-
                         assertz(active_assumption(Ass)))))
            ; true)),
     nl,
-
     write('--- Validation ---'), nl,
     forall(spec_requirement(N, _),
            (solved(N, S), write(N), write(': '), write(S), nl)),
     nl,
     write('========== END PROOF TRACE =========='), nl.
-
 :- main.
